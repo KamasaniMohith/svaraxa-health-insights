@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssessHeartDiseaseRouteImport } from './routes/assess.heart-disease'
+import { Route as AssessDiabetesRouteImport } from './routes/assess.diabetes'
 import { Route as AssessDiseaseRouteImport } from './routes/assess.$disease'
 
 const ResultsRoute = ResultsRouteImport.update({
@@ -23,6 +25,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssessHeartDiseaseRoute = AssessHeartDiseaseRouteImport.update({
+  id: '/assess/heart-disease',
+  path: '/assess/heart-disease',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssessDiabetesRoute = AssessDiabetesRouteImport.update({
+  id: '/assess/diabetes',
+  path: '/assess/diabetes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssessDiseaseRoute = AssessDiseaseRouteImport.update({
   id: '/assess/$disease',
   path: '/assess/$disease',
@@ -33,30 +45,54 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/results': typeof ResultsRoute
   '/assess/$disease': typeof AssessDiseaseRoute
+  '/assess/diabetes': typeof AssessDiabetesRoute
+  '/assess/heart-disease': typeof AssessHeartDiseaseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/results': typeof ResultsRoute
   '/assess/$disease': typeof AssessDiseaseRoute
+  '/assess/diabetes': typeof AssessDiabetesRoute
+  '/assess/heart-disease': typeof AssessHeartDiseaseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/results': typeof ResultsRoute
   '/assess/$disease': typeof AssessDiseaseRoute
+  '/assess/diabetes': typeof AssessDiabetesRoute
+  '/assess/heart-disease': typeof AssessHeartDiseaseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/results' | '/assess/$disease'
+  fullPaths:
+    | '/'
+    | '/results'
+    | '/assess/$disease'
+    | '/assess/diabetes'
+    | '/assess/heart-disease'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/results' | '/assess/$disease'
-  id: '__root__' | '/' | '/results' | '/assess/$disease'
+  to:
+    | '/'
+    | '/results'
+    | '/assess/$disease'
+    | '/assess/diabetes'
+    | '/assess/heart-disease'
+  id:
+    | '__root__'
+    | '/'
+    | '/results'
+    | '/assess/$disease'
+    | '/assess/diabetes'
+    | '/assess/heart-disease'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ResultsRoute: typeof ResultsRoute
   AssessDiseaseRoute: typeof AssessDiseaseRoute
+  AssessDiabetesRoute: typeof AssessDiabetesRoute
+  AssessHeartDiseaseRoute: typeof AssessHeartDiseaseRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +111,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assess/heart-disease': {
+      id: '/assess/heart-disease'
+      path: '/assess/heart-disease'
+      fullPath: '/assess/heart-disease'
+      preLoaderRoute: typeof AssessHeartDiseaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assess/diabetes': {
+      id: '/assess/diabetes'
+      path: '/assess/diabetes'
+      fullPath: '/assess/diabetes'
+      preLoaderRoute: typeof AssessDiabetesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assess/$disease': {
       id: '/assess/$disease'
       path: '/assess/$disease'
@@ -89,6 +139,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ResultsRoute: ResultsRoute,
   AssessDiseaseRoute: AssessDiseaseRoute,
+  AssessDiabetesRoute: AssessDiabetesRoute,
+  AssessHeartDiseaseRoute: AssessHeartDiseaseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

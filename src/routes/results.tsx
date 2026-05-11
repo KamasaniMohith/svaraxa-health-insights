@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RiskGauge } from "@/components/RiskGauge";
 import {
-  Apple, Activity, Stethoscope, CalendarCheck, Download, RefreshCw,
+  Heart, Footprints, CalendarCheck, Stethoscope, Download, RefreshCw,
   AlertTriangle, TrendingUp, Sparkles,
 } from "lucide-react";
 
@@ -15,52 +15,38 @@ export const Route = createFileRoute("/results")({
 });
 
 const DISEASE_LABEL: Record<string, string> = {
-  "heart": "Heart Disease",
-  "diabetes": "Diabetes",
+  heart: "Heart Disease",
+  diabetes: "Diabetes",
   "breast-cancer": "Breast Cancer",
 };
 
-const MOCK_FACTORS: Record<string, { name: string; impact: number; detail: string }[]> = {
-  "heart": [
-    { name: "Elevated cholesterol", impact: 82, detail: "Total cholesterol is above the 200 mg/dL threshold." },
-    { name: "Resting blood pressure", impact: 64, detail: "Borderline hypertension detected." },
-    { name: "Exercise-induced angina", impact: 47, detail: "Chest pain reported during activity." },
-  ],
-  "diabetes": [
-    { name: "Glucose level", impact: 88, detail: "2-hour OGTT glucose is in pre-diabetic range." },
-    { name: "BMI", impact: 61, detail: "Body mass index above healthy range." },
-    { name: "Family history (DPF)", impact: 43, detail: "Hereditary risk score elevated." },
-  ],
-  "breast-cancer": [
-    { name: "Radius mean", impact: 79, detail: "Cell nuclei larger than typical benign range." },
-    { name: "Concavity mean", impact: 66, detail: "Higher concavity suggests irregular shape." },
-    { name: "Texture mean", impact: 41, detail: "Slightly elevated gray-scale variation." },
-  ],
-};
+const FACTORS = [
+  { name: "High Cholesterol", impact: 85, label: "Major Impact", color: "var(--danger)" },
+  { name: "Low Activity", impact: 60, label: "Moderate Impact", color: "var(--warning)" },
+  { name: "Age", impact: 40, label: "Minor Impact", color: "#EAB308" },
+];
 
 const RECS = [
-  { icon: Apple, title: "Mediterranean Diet", desc: "Increase leafy greens, whole grains, and omega-3 rich fish.", accent: "var(--emerald)" },
-  { icon: Activity, title: "150 min Weekly Activity", desc: "Moderate aerobic exercise plus 2 strength sessions per week.", accent: "var(--electric)" },
-  { icon: Stethoscope, title: "Annual Screening", desc: "Schedule preventive lab work to track key biomarkers.", accent: "var(--warning)" },
-  { icon: CalendarCheck, title: "See a Specialist", desc: "Discuss your results with a primary care physician.", accent: "var(--danger)" },
+  { icon: Heart, title: "Reduce Saturated Fats", desc: "Limit red meat and dairy. Target cholesterol below 200 mg/dL.", accent: "var(--danger)" },
+  { icon: Footprints, title: "30 Min Daily Walk", desc: "Low-intensity cardio reduces heart disease risk by 35%.", accent: "var(--emerald)" },
+  { icon: CalendarCheck, title: "Schedule Lipid Panel", desc: "Get bloodwork done within 2 weeks. Ask for a full lipid profile.", accent: "var(--electric)" },
+  { icon: Stethoscope, title: "Consult Cardiologist", desc: "Share these results with a licensed physician.", accent: "var(--warning)" },
 ];
 
 function ResultsPage() {
   const { disease } = Route.useSearch();
   const label = DISEASE_LABEL[disease] ?? "Health";
-  const factors = MOCK_FACTORS[disease] ?? MOCK_FACTORS["heart"];
 
-  // animate count-up
-  const target = 58; // mock medium risk
+  const target = 72;
   const [score, setScore] = useState(0);
-  const healthAge = 47;
-  const actualAge = 38;
+  const healthAge = 56;
+  const actualAge = 42;
 
   useEffect(() => {
     let raf: number;
     const start = performance.now();
     const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / 1400);
+      const p = Math.min(1, (t - start) / 3000);
       setScore(Math.round(target * (1 - Math.pow(1 - p, 3))));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
@@ -82,71 +68,81 @@ function ResultsPage() {
             </span>
           </div>
 
-          {/* Top: gauge + health age */}
-          <div className="mt-8 grid gap-5 lg:grid-cols-3">
-            <div className="lg:col-span-2 glass-strong rounded-2xl p-8 flex flex-col items-center justify-center animate-fade-up">
+          {/* TOP ROW: gauge + (health age, risk level) */}
+          <div className="mt-8 grid gap-5 lg:grid-cols-2">
+            {/* Gauge */}
+            <div className="glass-strong rounded-2xl p-8 flex flex-col items-center justify-center animate-fade-up">
               <RiskGauge value={score} />
-              <p className="mt-6 text-sm text-muted-foreground max-w-md text-center">
-                Your overall risk score combines clinical inputs and AI-derived patterns
-                across {factors.length}+ key indicators.
+              <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                {label} Risk
               </p>
             </div>
-            <div className="glass-strong rounded-2xl p-7 animate-fade-up" style={{ animationDelay: "120ms" }}>
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                <TrendingUp className="h-3.5 w-3.5" /> Health Age
+
+            {/* Right column: 2 stacked/side cards */}
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div className="glass-strong rounded-2xl p-6 animate-fade-up" style={{ animationDelay: "100ms" }}>
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  <TrendingUp className="h-3.5 w-3.5" /> Health Age
+                </div>
+                <div className="mt-4 text-6xl font-bold tabular-nums text-gradient">{healthAge}</div>
+                <div className="mt-2 text-sm text-muted-foreground">Your age: {actualAge}</div>
+                <p className="mt-4 text-xs text-[var(--warning)]">
+                  Your heart is aging faster than expected.
+                </p>
               </div>
-              <div className="mt-4 flex items-baseline gap-2">
-                <div className="text-6xl font-bold tabular-nums text-gradient">{healthAge}</div>
-                <div className="text-sm text-muted-foreground">years</div>
-              </div>
-              <p className="mt-3 text-sm">
-                Your computed health age is{" "}
-                <span className="font-semibold text-[var(--warning)]">{healthAge - actualAge} years older</span>{" "}
-                than your actual age of {actualAge}.
-              </p>
-              <div className="mt-6 h-px bg-white/5" />
-              <div className="mt-4 text-xs text-muted-foreground">
-                Reducing top risk factors could lower your health age by up to 6 years.
+              <div className="glass-strong rounded-2xl p-6 animate-fade-up" style={{ animationDelay: "180ms" }}>
+                <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Risk Level</div>
+                <div className="mt-4 text-5xl font-bold tabular-nums" style={{ color: "var(--danger)" }}>
+                  HIGH
+                </div>
+                <div className="mt-6 h-px bg-white/5" />
+                <p className="mt-4 text-xs text-muted-foreground">Model Confidence: <span className="font-semibold text-foreground">89%</span></p>
               </div>
             </div>
           </div>
 
-          {/* Risk factors */}
+          {/* Why this score */}
           <section className="mt-12">
-            <h2 className="text-xl sm:text-2xl font-bold">Key Risk Factors</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Why this score?</h2>
             <p className="text-sm text-muted-foreground">Top contributors driving your risk score.</p>
-            <div className="mt-6 grid gap-3">
-              {factors.map((f, i) => {
-                const color = f.impact > 70 ? "var(--danger)" : f.impact > 45 ? "var(--warning)" : "var(--success)";
-                return (
-                  <div key={f.name} className="glass rounded-xl p-5 animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <div className="font-semibold">{f.name}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{f.detail}</div>
-                      </div>
-                      <div className="text-sm font-bold tabular-nums" style={{ color }}>{f.impact}%</div>
-                    </div>
-                    <div className="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-1000"
-                        style={{
-                          width: `${f.impact}%`,
-                          background: `linear-gradient(90deg, color-mix(in oklab, ${color} 60%, transparent), ${color})`,
-                          boxShadow: `0 0 12px ${color}`,
-                        }}
-                      />
-                    </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {FACTORS.map((f, i) => (
+                <div key={f.name} className="glass rounded-xl p-5 animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold">{f.name}</div>
+                    <span
+                      className="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full"
+                      style={{
+                        color: f.color,
+                        backgroundColor: `color-mix(in oklab, ${f.color} 15%, transparent)`,
+                        border: `1px solid color-mix(in oklab, ${f.color} 35%, transparent)`,
+                      }}
+                    >
+                      {f.label}
+                    </span>
                   </div>
-                );
-              })}
+                  <div className="mt-4 h-2.5 rounded-full bg-white/5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-[1400ms] ease-out"
+                      style={{
+                        width: `${f.impact}%`,
+                        background: `linear-gradient(90deg, color-mix(in oklab, ${f.color} 55%, transparent), ${f.color})`,
+                        boxShadow: `0 0 14px ${f.color}`,
+                      }}
+                    />
+                  </div>
+                  <div className="mt-2 text-right text-xs font-semibold tabular-nums" style={{ color: f.color }}>
+                    {f.impact}%
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* Recommendations */}
+          {/* Recommended Actions */}
           <section className="mt-12">
-            <h2 className="text-xl sm:text-2xl font-bold">Personalized Recommendations</h2>
-            <p className="text-sm text-muted-foreground">Evidence-based actions tailored to your profile.</p>
+            <h2 className="text-xl sm:text-2xl font-bold">Recommended Actions</h2>
+            <p className="text-sm text-muted-foreground">Evidence-based steps tailored to your profile.</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {RECS.map((r, i) => {
                 const Icon = r.icon;
@@ -154,7 +150,11 @@ function ResultsPage() {
                   <div key={r.title} className="glass rounded-xl p-5 flex gap-4 animate-fade-up" style={{ animationDelay: `${i * 70}ms` }}>
                     <div
                       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-                      style={{ backgroundColor: `color-mix(in oklab, ${r.accent} 18%, transparent)`, color: r.accent, border: `1px solid color-mix(in oklab, ${r.accent} 35%, transparent)` }}
+                      style={{
+                        backgroundColor: `color-mix(in oklab, ${r.accent} 18%, transparent)`,
+                        color: r.accent,
+                        border: `1px solid color-mix(in oklab, ${r.accent} 35%, transparent)`,
+                      }}
                     >
                       <Icon className="h-5 w-5" />
                     </div>
@@ -169,19 +169,27 @@ function ResultsPage() {
           </section>
 
           {/* Actions */}
-          <div className="mt-12 flex flex-col sm:flex-row gap-3">
-            <Button disabled className="h-11 px-6 bg-white/5 border border-white/10 text-muted-foreground cursor-not-allowed">
-              <Download /> Download AI Health Report (PDF)
+          <div className="mt-12 grid sm:grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              className="h-11 px-6 border-[var(--electric)]/40 text-[var(--electric)] bg-[var(--electric)]/5 hover:bg-[var(--electric)]/10 hover:text-[var(--electric)]"
+            >
+              <Download /> Download PDF Report
             </Button>
-            <Button asChild className="h-11 px-6 bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] hover:opacity-95 text-white border-0">
-              <Link to="/"><RefreshCw /> Assess Another Disease</Link>
+            <Button
+              asChild
+              className="h-11 px-6 bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] hover:opacity-95 text-white border-0 shadow-lg shadow-[var(--electric)]/30"
+            >
+              <Link to="/"><RefreshCw /> Check Another Disease</Link>
             </Button>
           </div>
 
-          <div className="mt-10 flex items-start gap-3 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning)]/5 p-5">
-            <AlertTriangle className="h-5 w-5 text-[var(--warning)] mt-0.5 shrink-0" />
-            <p className="text-sm text-muted-foreground">
-              This is not a medical diagnosis. Consult a healthcare professional for any medical concerns or before making health-related decisions.
+          {/* Red disclaimer */}
+          <div className="mt-8 flex items-start gap-3 rounded-xl border border-[var(--danger)]/40 bg-[var(--danger)]/10 p-5">
+            <AlertTriangle className="h-5 w-5 text-[var(--danger)] mt-0.5 shrink-0" />
+            <p className="text-sm text-foreground/90">
+              <span className="font-semibold text-[var(--danger)]">⚠️ This is NOT a medical diagnosis.</span>{" "}
+              Results are for awareness only. Always consult a licensed healthcare professional.
             </p>
           </div>
         </div>
