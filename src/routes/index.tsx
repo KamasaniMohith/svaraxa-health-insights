@@ -11,21 +11,22 @@ export const Route = createFileRoute("/")({
 
 const diseases = [
   {
-    slug: "heart",
+    to: "/assess/heart-disease" as const,
     name: "Heart Disease",
     icon: Heart,
     accent: "var(--danger)",
     desc: "Cardiovascular risk analysis using 9 clinical indicators including BP, cholesterol, and ECG-derived metrics.",
   },
   {
-    slug: "diabetes",
+    to: "/assess/diabetes" as const,
     name: "Diabetes",
     icon: Droplet,
     accent: "var(--electric)",
     desc: "Type-2 diabetes risk profile based on glucose, BMI, insulin response, and hereditary patterns.",
   },
   {
-    slug: "breast-cancer",
+    to: "/assess/$disease" as const,
+    params: { disease: "breast-cancer" },
     name: "Breast Cancer",
     icon: Ribbon,
     accent: "var(--emerald)",
@@ -103,9 +104,9 @@ function Landing() {
             const Icon = d.icon;
             return (
               <Link
-                key={d.slug}
-                to="/assess/$disease"
-                params={{ disease: d.slug }}
+                key={d.name}
+                to={d.to}
+                params={(d as any).params}
                 className="group glass-strong rounded-2xl p-6 transition-all hover:-translate-y-1 hover:ring-glow animate-fade-up"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
