@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/select";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ArrowLeft, ArrowRight, Sparkles, AlertTriangle } from "lucide-react";
+import { predictHeart, predictDiabetes } from "@/lib/api";
+import { setResult } from "@/lib/store";
+import { toast } from "sonner";
 
 export type FieldType = "slider" | "select" | "toggle" | "buttons" | "number";
 
@@ -52,11 +55,67 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
 
   const update = (k: string, v: any) => setValues((p) => ({ ...p, [k]: v }));
 
-  const submit = () => {
+  const submit = async () => {
     setLoading(true);
-    setTimeout(() => {
-      navigate({ to: "/results", search: { disease: config.slug } as any });
-    }, 2800);
+    try {
+      if (config.slug === "heart") {
+        // Map form values to HeartInput format
+        const heartData = {
+          age: values.age,
+          sex: values.gender === "m" ? 1 : 0, // 1 for male, 0 for female
+          cp: mapChestPain(values.cp), // none=0, ta=1, aa=2, nap=3
+          trestbps: values.bp,
+          chol: values.chol,
+          fbs: values.fbs ? 1 : 0, // true=1, false=0
+          restecg: 0, // default value
+          thalach: values.thalach,
+          exang: values.exang ? 1 : 0, // true=1, false=0
+          oldpeak: values.oldpeak,
+          slope: 1, // default value
+          ca: 0, // default value
+          thal: 3, // default value
+        };
+
+        const result = await predictHeart(heartData);
+        setResult(result);
+        navigate({ to: "/results" });
+      } else if (config.slug === "diabetes") {
+        // Map form values to DiabetesInput format
+        const diabetesData = {
+          age: values.age,
+          pregnancies: values.pregnancies ?? 0, // default to 0 if not provided
+          glucose: values.glucose,
+          blood_pressure: values.bp,
+          skin_thickness: 0, // default value (not in form)
+          insulin: values.insulin,
+          bmi: values.bmi,
+          diabetes_pedigree: values.dpf,
+        };
+
+        const result = await predictDiabetes(diabetesData);
+        setResult(result);
+        navigate({ to: "/results" });
+      } else {
+        // Fallback for other diseases
+        setTimeout(() => {
+          navigate({ to: "/results", search: { disease: config.slug } as any });
+        }, 2800);
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error("Analysis failed, please try again");
+      console.error("Prediction error:", error);
+    }
+  };
+
+  const mapChestPain = (value: string): number => {
+    const map: Record<string, number> = {
+      none: 0,
+      ta: 1,
+      aa: 2,
+      nap: 3,
+    };
+    return map[value] ?? 0;
   };
 
   return (
