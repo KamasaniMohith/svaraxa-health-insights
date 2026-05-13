@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { ArrowLeft, ArrowRight, Sparkles, AlertTriangle } from "lucide-react";
 import { predictHeart, predictDiabetes } from "@/lib/api";
 import { setResult } from "@/lib/store";
@@ -37,11 +36,28 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [messageIndex, setMessageIndex] = useState(0);
   const [values, setValues] = useState<Record<string, any>>(() => {
     const init: Record<string, any> = {};
     config.steps.forEach((s) => s.fields.forEach((f) => (init[f.key] = f.defaultValue)));
     return init;
   });
+
+  const loadingMessages = [
+    "Analyzing health indicators...",
+    "Running AI prediction models...",
+    "Generating explainability report...",
+    "Preparing personalized recommendations...",
+  ];
+
+  // Cycle through messages every 700ms while loading
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+    }, 700);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const totalSteps = config.steps.length + 1; // + review
   const isReview = step === config.steps.length;
@@ -156,7 +172,43 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
 
   return (
     <div className="relative">
-      {loading && <LoadingScreen />}
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+          <style>{`
+            @keyframes pulse-ring {
+              0% {
+                transform: scale(1);
+                opacity: 1;
+              }
+              50% {
+                transform: scale(1.15);
+              }
+              100% {
+                transform: scale(1);
+                opacity: 0.8;
+              }
+            }
+            .pulse-circle {
+              animation: pulse-ring 2s ease-in-out infinite;
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            }
+          `}</style>
+          <div className="glass-strong rounded-2xl p-12 max-w-sm mx-4 text-center">
+            <div className="flex justify-center mb-8">
+              <div className="pulse-circle" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              {loadingMessages[messageIndex]}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              This usually takes 2-3 seconds
+            </p>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-12 md:py-16">
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
           <ArrowLeft className="h-4 w-4" /> Back

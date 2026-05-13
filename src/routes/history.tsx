@@ -54,12 +54,23 @@ function HistoryPage() {
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
-      month: "short",
       day: "numeric",
+      month: "short",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
+  };
+
+  const getRiskBadgeClass = (level: string): string => {
+    switch (level) {
+      case "LOW":
+        return "bg-[var(--emerald)]/20 text-[var(--emerald)] border-[var(--emerald)]/40";
+      case "MEDIUM":
+        return "bg-[var(--warning)]/20 text-[var(--warning)] border-[var(--warning)]/40";
+      case "HIGH":
+        return "bg-[var(--danger)]/20 text-[var(--danger)] border-[var(--danger)]/40";
+      default:
+        return "bg-[var(--electric)]/20 text-[var(--electric)] border-[var(--electric)]/40";
+    }
   };
 
   if (isLoading) {
@@ -116,19 +127,11 @@ function HistoryPage() {
                   className="glass rounded-xl p-6 flex flex-col gap-4 animate-fade-up hover:bg-white/7.5 transition-colors"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  {/* Disease and Risk Level */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-lg font-semibold capitalize">{assessment.disease} Risk</h3>
-                      <p className="text-xs text-muted-foreground mt-1">Assessment</p>
-                    </div>
+                  {/* Disease Title and Risk Badge */}
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-lg font-semibold capitalize">{assessment.disease}</h3>
                     <span
-                      className="text-sm font-bold px-3 py-1.5 rounded-lg whitespace-nowrap"
-                      style={{
-                        color: getRiskColor(assessment.risk_level),
-                        backgroundColor: `color-mix(in oklab, ${getRiskColor(assessment.risk_level)} 15%, transparent)`,
-                        border: `1px solid color-mix(in oklab, ${getRiskColor(assessment.risk_level)} 35%, transparent)`,
-                      }}
+                      className={`text-sm font-bold px-3 py-1.5 rounded-lg whitespace-nowrap border ${getRiskBadgeClass(assessment.risk_level)}`}
                     >
                       {assessment.risk_level}
                     </span>

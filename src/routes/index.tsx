@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Heart, Droplet, Ribbon, ArrowRight, ClipboardList, Brain, FileText, Activity,
@@ -53,6 +54,59 @@ const soon = [
   { icon: Watch, title: "Wearables Sync", desc: "Continuous risk tracking from Apple Watch & Fitbit." },
   { icon: MessageSquareHeart, title: "AI Health Chat", desc: "Conversational triage with an AI medical assistant." },
 ];
+
+function AnimatedCounter({ targetValue, label }: { targetValue: number; label: string }) {
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const duration = 1500; // milliseconds
+    const startTime = Date.now();
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      setCount(Math.floor(targetValue * progress));
+
+      if (progress === 1) {
+        clearInterval(interval);
+      }
+    }, 16); // ~60fps
+
+    return () => clearInterval(interval);
+  }, [isVisible, targetValue]);
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-3xl sm:text-4xl font-bold text-gradient">{count.toLocaleString()}</div>
+      <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+    </div>
+  );
+}
 
 function Landing() {
   return (
@@ -154,10 +208,14 @@ function Landing() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-24">
         <div className="glass-strong rounded-2xl px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-y-8">
           {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-gradient">{s.value}</div>
-              <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">{s.label}</div>
-            </div>
+            s.label === "Assessments Done" ? (
+              <AnimatedCounter key={s.label} targetValue={parseInt(s.value.replace(/,/g, ""))} label={s.label} />
+            ) : (
+              <div key={s.label} className="text-center">
+                <div className="text-3xl sm:text-4xl font-bold text-gradient">{s.value}</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">{s.label}</div>
+              </div>
+            )
           ))}
         </div>
       </section>
