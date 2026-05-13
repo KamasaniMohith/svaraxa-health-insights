@@ -10,6 +10,9 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ArrowLeft, ArrowRight, Sparkles, AlertTriangle } from "lucide-react";
+import { predictBreastCancer } from "@/lib/api";
+import { setResult } from "@/lib/store";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/assess/$disease")({
   component: AssessPage,
@@ -96,24 +99,17 @@ const DIABETES: { title: string; fields: Field[] }[] = [
 
 const BREAST: { title: string; fields: Field[] }[] = [
   {
-    title: "Cell size",
+    title: "Tumor Characteristics",
     fields: [
-      { key: "radius", label: "Radius Mean", type: "slider", min: 6, max: 30, step: 0.1, defaultValue: 14, unit: "µm", helper: "Benign: 6-15  ·  Malignant: 14+" },
-      { key: "perimeter", label: "Perimeter Mean", type: "slider", min: 40, max: 200, step: 0.1, defaultValue: 90, unit: "µm", helper: "Benign: 40-100" },
-      { key: "area", label: "Area Mean", type: "slider", min: 100, max: 2500, step: 1, defaultValue: 650, unit: "µm²", helper: "Benign: 100-700" },
+      { key: "tumorSize", label: "Tumor Size", type: "slider", min: 1, max: 50, step: 0.5, defaultValue: 15, unit: "mm", helper: "Benign typically < 20mm" },
+      { key: "textureIrregularity", label: "Texture Irregularity", type: "slider", min: 1, max: 10, step: 0.5, defaultValue: 5, unit: "scale 1-10", helper: "Smoother (1) to Irregular (10)" },
     ],
   },
   {
-    title: "Texture",
+    title: "Cell Characteristics",
     fields: [
-      { key: "texture", label: "Texture Mean", type: "slider", min: 8, max: 40, step: 0.1, defaultValue: 19, unit: "", helper: "Std dev of gray-scale" },
-      { key: "smoothness", label: "Smoothness Mean", type: "slider", min: 0.05, max: 0.18, step: 0.001, defaultValue: 0.1, unit: "", helper: "Typical: 0.07-0.13" },
-    ],
-  },
-  {
-    title: "Shape",
-    fields: [
-      { key: "concavity", label: "Concavity Mean", type: "slider", min: 0, max: 0.5, step: 0.001, defaultValue: 0.09, unit: "", helper: "Severity of concave portions" },
+      { key: "boundarySmoothness", label: "Boundary Smoothness", type: "slider", min: 1, max: 10, step: 0.5, defaultValue: 5, unit: "scale 1-10", helper: "Smooth (1) to Irregular (10)" },
+      { key: "cellUniformity", label: "Cell Uniformity", type: "slider", min: 1, max: 10, step: 0.5, defaultValue: 5, unit: "scale 1-10", helper: "Uniform (1) to Varied (10)" },
     ],
   },
   {
@@ -160,11 +156,90 @@ function AssessPage() {
 
   const update = (k: string, v: any) => setValues((p) => ({ ...p, [k]: v }));
 
-  const submit = () => {
+  const submit = async () => {
     setLoading(true);
-    setTimeout(() => {
-      navigate({ to: "/results", search: { disease } as any });
-    }, 2800);
+    try {
+      if (disease === "breast-cancer") {
+        // Map user-friendly inputs to clinical BreastCancerInput format
+        const radiusMean = values.tumorSize / 3.14; // Tumor size in mm -> radius_mean
+        const textureMean = values.textureIrregularity * 3; // Scale 1-10 -> texture_mean
+        const smoothnessMean = (values.boundarySmoothness / 10) * 0.1; // Scale 1-10 -> smoothness_mean
+        const concavityMean = values.cellUniformity / 10; // Scale 1-10 -> concavity_mean
+
+        // Derive other fields using formulas
+        const perimeterMean = radiusMean * 6.5;
+        const areaMean = radiusMean * radiusMean * 3.14;
+        const compactnessMean = concavityMean * 0.8;
+
+        // All _se fields = corresponding _mean * 0.15
+        const radiusSe = radiusMean * 0.15;
+        const textureSe = textureMean * 0.15;
+        const perimeterSe = perimeterMean * 0.15;
+        const areaSe = areaMean * 0.15;
+        const smoothnessSe = smoothnessMean * 0.15;
+        const compactnessSe = compactnessMean * 0.15;
+        const concavitySe = concavityMean * 0.15;
+        const concavePointsSe = (concavityMean * 0.1) * 0.15;
+        const symmetrySe = 0.1 * 0.15; // default
+        const fractalDimensionSe = 0.005 * 0.15; // default
+
+        // All _worst fields = corresponding _mean * 1.8
+        const radiusWorst = radiusMean * 1.8;
+        const textureWorst = textureMean * 1.8;
+        const perimeterWorst = perimeterMean * 1.8;
+        const areaWorst = areaMean * 1.8;
+        const smoothnessWorst = smoothnessMean * 1.8;
+        const compactnessWorst = compactnessMean * 1.8;
+        const concavityWorst = concavityMean * 1.8;
+        const concavePointsWorst = (concavityMean * 0.1) * 1.8;
+        const symmetryWorst = 0.1 * 1.8;
+        const fractalDimensionWorst = 0.005 * 1.8;
+
+        const breastCancerData = {
+          radius_mean: radiusMean,
+          texture_mean: textureMean,
+          perimeter_mean: perimeterMean,
+          area_mean: areaMean,
+          smoothness_mean: smoothnessMean,
+          compactness_mean: compactnessMean,
+          concavity_mean: concavityMean,
+          concave_points_mean: concavityMean * 0.1,
+          symmetry_mean: 0.1,
+          fractal_dimension_mean: 0.005,
+          radius_se: radiusSe,
+          texture_se: textureSe,
+          perimeter_se: perimeterSe,
+          area_se: areaSe,
+          smoothness_se: smoothnessSe,
+          compactness_se: compactnessSe,
+          concavity_se: concavitySe,
+          concave_points_se: concavePointsSe,
+          symmetry_se: symmetrySe,
+          fractal_dimension_se: fractalDimensionSe,
+          radius_worst: radiusWorst,
+          texture_worst: textureWorst,
+          perimeter_worst: perimeterWorst,
+          area_worst: areaWorst,
+          smoothness_worst: smoothnessWorst,
+          compactness_worst: compactnessWorst,
+          concavity_worst: concavityWorst,
+          concave_points_worst: concavePointsWorst,
+          symmetry_worst: symmetryWorst,
+          fractal_dimension_worst: fractalDimensionWorst,
+        };
+
+        const result = await predictBreastCancer(breastCancerData);
+        setResult(result);
+        navigate({ to: "/results" });
+      } else {
+        // Fallback for other diseases
+        navigate({ to: "/results", search: { disease } as any });
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error("Analysis failed, please try again");
+      console.error("Prediction error:", error);
+    }
   };
 
   return (

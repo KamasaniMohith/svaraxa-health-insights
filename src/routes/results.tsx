@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { RiskGauge } from "@/components/RiskGauge";
 import {
   Heart, Footprints, CalendarCheck, Stethoscope, Download, RefreshCw,
-  AlertTriangle, TrendingUp, Sparkles, ArrowLeft,
+  AlertTriangle, TrendingUp, Sparkles, ArrowLeft, Bookmark,
 } from "lucide-react";
 import { getResult } from "@/lib/store";
+import { generatePDF } from "@/lib/generatePDF";
+import { useUser, useClerk } from "@clerk/tanstack-start";
+import { toast } from "sonner";
 import type { PredictionResult } from "@/lib/api";
 
 export const Route = createFileRoute("/results")({
@@ -18,8 +21,11 @@ export const Route = createFileRoute("/results")({
 
 function ResultsPage() {
   const { disease } = Route.useSearch();
+  const { user } = useUser();
+  const { openSignIn } = useClerk();
   const [result, setResultState] = useState<PredictionResult | null>(null);
   const [score, setScore] = useState(0);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const data = getResult();
@@ -28,7 +34,7 @@ function ResultsPage() {
 
   useEffect(() => {
     if (!result) return;
-    let raf: number;
+    let raf: number | null = null;
     const start = performance.now();
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / 3000);
@@ -36,7 +42,9 @@ function ResultsPage() {
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+    };
   }, [result]);
 
   if (!result) {
@@ -77,6 +85,60 @@ function ResultsPage() {
     if (impact === "Major Impact") return "var(--danger)";
     if (impact === "Moderate Impact") return "var(--warning)";
     return "#EAB308";
+  };
+
+  const factorNames: Record<string, string> = {
+    "Ca": "Blocked Vessels",
+    "Thal": "Thalassemia",
+    "Cp": "Chest Pain Type",
+    "Trestbps": "Blood Pressure",
+    "Chol": "Cholesterol",
+    "Thalach": "Max Heart Rate",
+    "Oldpeak": "ST Depression",
+    "Exang": "Exercise Angina",
+    "Age": "Age",
+    "Bmi": "Body Mass Index",
+    "Glucose": "Blood Glucose",
+    "Insulin": "Insulin Level",
+    "Pregnancies": "Pregnancies",
+    "Blood Pressure": "Blood Pressure",
+    "Diabetes Pedigree": "Family History Score",
+    "Skin Thickness": "Skin Thickness",
+  };
+
+  const getFriendlyFactorName = (factor: string): string => {
+    return factorNames[factor] || factor;
+  };
+
+  const getNormalizedFactorWidth = (): number => {
+    const scores = result.top_factors.map((f) => f.score);
+    return Math.max(...scores);
+  };
+
+  const maxFactorScore = getNormalizedFactorWidth();
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    await generatePDF(result, {});
+    setDownloading(false);
+  };
+
+  const handleSaveReport = () => {
+    if (!user) {
+      openSignIn();
+      return;
+    }
+
+    if (!result) return;
+
+    const history = JSON.parse(localStorage.getItem("svaraxa_history") || "[]") as Array<PredictionResult & { savedAt: string }>;
+    const newEntry = {
+      ...result,
+      savedAt: new Date().toISOString(),
+    };
+    history.push(newEntry);
+    localStorage.setItem("svaraxa_history", JSON.stringify(history));
+    toast.success("Assessment saved to history!");
   };
 
   return (
@@ -129,7 +191,7 @@ function ResultsPage() {
                 </div>
                 <div className="mt-6 h-px bg-white/5" />
                 <p className="mt-4 text-xs text-muted-foreground">
-                  Model Confidence: <span className="font-semibold text-foreground">{Math.round(result.confidence * 100)}%</span>
+                  Model Confidence: <span className="font-semibold text-foreground">{result.confidence.toFixed(1)}%</span>
                 </p>
               </div>
             </div>
@@ -143,7 +205,7 @@ function ResultsPage() {
               {result.top_factors.slice(0, 3).map((f, i) => (
                 <div key={`${f.factor}-${i}`} className="glass rounded-xl p-5 animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
                   <div className="flex items-center justify-between">
-                    <div className="font-semibold">{f.factor}</div>
+                    <div className="font-semibold">{getFriendlyFactorName(f.factor)}</div>
                     <span
                       className="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full"
                       style={{
@@ -159,14 +221,14 @@ function ResultsPage() {
                     <div
                       className="h-full rounded-full transition-all duration-[1400ms] ease-out"
                       style={{
-                        width: `${f.score}%`,
+                        width: `${(f.score / maxFactorScore) * 85}%`,
                         background: `linear-gradient(90deg, color-mix(in oklab, ${getFactorColor(f.impact)} 55%, transparent), ${getFactorColor(f.impact)})`,
                         boxShadow: `0 0 14px ${getFactorColor(f.impact)}`,
                       }}
                     />
                   </div>
                   <div className="mt-2 text-right text-xs font-semibold tabular-nums" style={{ color: getFactorColor(f.impact) }}>
-                    {f.score}%
+                    {f.score.toFixed(3)}
                   </div>
                 </div>
               ))}
@@ -205,12 +267,21 @@ function ResultsPage() {
           </section>
 
           {/* Actions */}
-          <div className="mt-12 grid sm:grid-cols-2 gap-3">
+          <div className="mt-12 grid sm:grid-cols-3 gap-3">
             <Button
               variant="outline"
+              onClick={handleDownload}
+              disabled={downloading}
               className="h-11 px-6 border-[var(--electric)]/40 text-[var(--electric)] bg-[var(--electric)]/5 hover:bg-[var(--electric)]/10 hover:text-[var(--electric)]"
             >
-              <Download /> Download PDF Report
+              <Download /> {downloading ? "Generating PDF..." : "Download PDF Report"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleSaveReport}
+              className="h-11 px-6 border-[var(--electric)]/40 text-[var(--electric)] bg-[var(--electric)]/5 hover:bg-[var(--electric)]/10 hover:text-[var(--electric)]"
+            >
+              <Bookmark /> Save Report
             </Button>
             <Button
               asChild

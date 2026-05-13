@@ -1,34 +1,47 @@
 import { useEffect, useState } from "react";
-import { Activity, Brain, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
-const steps = [
-  { icon: Activity, text: "Analyzing health indicators..." },
-  { icon: Brain, text: "Generating AI explanation..." },
-  { icon: Sparkles, text: "Preparing recommendations..." },
+const messages = [
+  "Analyzing health indicators...",
+  "Running AI prediction models...",
+  "Generating explainability report...",
+  "Preparing personalized recommendations...",
 ];
 
 export function LoadingScreen() {
-  const [i, setI] = useState(0);
+  const [messageIndex, setMessageIndex] = useState(0);
+
   useEffect(() => {
-    const t = setInterval(() => setI((p) => (p + 1) % steps.length), 1400);
-    return () => clearInterval(t);
+    const interval = setInterval(() => setMessageIndex((p) => (p + 1) % messages.length), 600);
+    return () => clearInterval(interval);
   }, []);
-  const S = steps[i];
-  const Icon = S.icon;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xl">
       <div className="text-center">
-        <div className="relative mx-auto h-24 w-24">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--electric)] to-[var(--emerald)] opacity-30 animate-ping" />
-          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[var(--electric)] to-[var(--emerald)] opacity-60 animate-pulse" />
-          <div className="absolute inset-4 rounded-full bg-card flex items-center justify-center ring-glow">
-            <Icon className="h-8 w-8 text-[var(--electric)]" />
+        <div className="relative mx-auto h-32 w-32">
+          {/* Outer pulsing ring */}
+          <div className="absolute inset-0 rounded-full bg-[var(--electric)] opacity-20 animate-pulse" />
+          {/* Middle pulsing ring */}
+          <div className="absolute inset-3 rounded-full bg-[var(--electric)] opacity-30 animate-pulse" style={{ animationDelay: "0.2s" }} />
+          {/* Inner pulsing ring */}
+          <div className="absolute inset-6 rounded-full bg-[var(--electric)] opacity-40 animate-pulse" style={{ animationDelay: "0.4s" }} />
+          {/* Center circle with icon */}
+          <div className="absolute inset-8 rounded-full bg-gradient-to-br from-[var(--electric)] to-[var(--emerald)] flex items-center justify-center">
+            <Sparkles className="h-10 w-10 text-white animate-spin" style={{ animationDuration: "3s" }} />
           </div>
         </div>
-        <p key={i} className="mt-8 text-base font-medium animate-fade-in">{S.text}</p>
-        <div className="mt-4 flex justify-center gap-1.5">
-          {steps.map((_, idx) => (
-            <div key={idx} className={`h-1 w-8 rounded-full transition-colors ${idx === i ? "bg-[var(--electric)]" : "bg-white/10"}`} />
+        <p key={messageIndex} className="mt-8 text-base font-medium text-[var(--electric)] animate-fade-in">
+          {messages[messageIndex]}
+        </p>
+        <div className="mt-6 flex justify-center gap-1.5">
+          {messages.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
+                idx === messageIndex ? "bg-[var(--electric)] w-6" : "bg-white/20"
+              }`}
+            />
           ))}
         </div>
       </div>

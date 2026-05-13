@@ -1,4 +1,4 @@
-const API_BASE = "https://theomverse-svaraxa-api.hf.space";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://theomverse-svaraxa-api.hf.space";
 
 // ---------- Types ----------
 export interface PredictionResult {
@@ -84,35 +84,65 @@ export interface BreastCancerInput {
 export async function predictDiabetes(
   data: DiabetesInput
 ): Promise<PredictionResult> {
-  const res = await fetch(`${API_BASE}/predict/diabetes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Diabetes prediction failed");
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE}/predict/diabetes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Diabetes prediction failed: ${res.status} ${error || res.statusText}`);
+    }
+    return res.json();
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`Diabetes prediction failed: Network error. Check your connection or API availability.`);
+    }
+    throw error;
+  }
 }
 
 export async function predictHeart(
   data: HeartInput
 ): Promise<PredictionResult> {
-  const res = await fetch(`${API_BASE}/predict/heart`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Heart prediction failed");
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE}/predict/heart`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Heart prediction failed: ${res.status} ${error || res.statusText}`);
+    }
+    return res.json();
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`Heart prediction failed: Network error. Check your connection or API availability.`);
+    }
+    throw error;
+  }
 }
 
 export async function predictBreastCancer(
   data: BreastCancerInput
 ): Promise<PredictionResult> {
-  const res = await fetch(`${API_BASE}/predict/breast-cancer`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Breast cancer prediction failed");
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE}/predict/breast-cancer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Breast cancer prediction failed: ${res.status} ${error || res.statusText}`);
+    }
+    return res.json();
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`Breast cancer prediction failed: Network error. Check your connection or API availability.`);
+    }
+    throw error;
+  }
 }

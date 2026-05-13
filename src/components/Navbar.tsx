@@ -1,8 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUser, useClerk, UserButton } from "@clerk/tanstack-start";
 
 export function Navbar() {
+  const { user } = useUser();
+  const { openSignIn } = useClerk();
+
   return (
     <header className="sticky top-0 z-50 w-full">
       <div className="glass border-b border-white/5">
@@ -21,9 +25,23 @@ export function Navbar() {
             <a href="/#diseases" className="hover:text-foreground transition-colors">Assessments</a>
             <a href="/#how" className="hover:text-foreground transition-colors">How it works</a>
             <a href="/#soon" className="hover:text-foreground transition-colors">Coming Soon</a>
+            {user && (
+              <Link to="/history" className="hover:text-foreground transition-colors" activeProps={{ className: "text-foreground" }}>History</Link>
+            )}
           </nav>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Sign In</Button>
+            {!user ? (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hidden sm:inline-flex"
+                onClick={() => openSignIn()}
+              >
+                Sign In
+              </Button>
+            ) : (
+              <UserButton />
+            )}
             <Button size="sm" className="bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] hover:opacity-90 text-white border-0" asChild>
               <a href="/#diseases">Get Started</a>
             </Button>

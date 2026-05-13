@@ -59,6 +59,23 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
     setLoading(true);
     try {
       if (config.slug === "heart") {
+        // Validate heart input
+        if (!values.age || values.age < 18 || values.age > 100) {
+          throw new Error("Age must be between 18 and 100");
+        }
+        if (!values.bp || values.bp < 80 || values.bp > 200) {
+          throw new Error("Blood pressure must be between 80 and 200 mmHg");
+        }
+        if (!values.chol || values.chol < 100 || values.chol > 400) {
+          throw new Error("Cholesterol must be between 100 and 400 mg/dL");
+        }
+        if (!values.thalach || values.thalach < 60 || values.thalach > 220) {
+          throw new Error("Heart rate must be between 60 and 220 bpm");
+        }
+        if (values.oldpeak === undefined || values.oldpeak < 0 || values.oldpeak > 6.2) {
+          throw new Error("ST depression must be between 0 and 6.2");
+        }
+
         // Map form values to HeartInput format
         const heartData = {
           age: values.age,
@@ -80,6 +97,26 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
         setResult(result);
         navigate({ to: "/results" });
       } else if (config.slug === "diabetes") {
+        // Validate diabetes input
+        if (!values.age || values.age < 1 || values.age > 90) {
+          throw new Error("Age must be between 1 and 90");
+        }
+        if (!values.glucose || values.glucose < 50 || values.glucose > 250) {
+          throw new Error("Glucose must be between 50 and 250 mg/dL");
+        }
+        if (!values.bp || values.bp < 40 || values.bp > 130) {
+          throw new Error("Blood pressure must be between 40 and 130 mmHg");
+        }
+        if (!values.bmi || values.bmi < 10 || values.bmi > 60) {
+          throw new Error("BMI must be between 10 and 60");
+        }
+        if (values.insulin === undefined || values.insulin < 0 || values.insulin > 900) {
+          throw new Error("Insulin must be between 0 and 900 µU/mL");
+        }
+        if (values.dpf === undefined || values.dpf < 0 || values.dpf > 2.5) {
+          throw new Error("Diabetes Pedigree Function must be between 0 and 2.5");
+        }
+
         // Map form values to DiabetesInput format
         const diabetesData = {
           age: values.age,
@@ -96,14 +133,13 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
         setResult(result);
         navigate({ to: "/results" });
       } else {
-        // Fallback for other diseases
-        setTimeout(() => {
-          navigate({ to: "/results", search: { disease: config.slug } as any });
-        }, 2800);
+        // For other diseases, show error
+        throw new Error(`${config.name} assessment is not yet available`);
       }
     } catch (error) {
       setLoading(false);
-      toast.error("Analysis failed, please try again");
+      const message = error instanceof Error ? error.message : "Analysis failed, please try again";
+      toast.error(message);
       console.error("Prediction error:", error);
     }
   };
