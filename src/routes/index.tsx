@@ -120,7 +120,7 @@ function Landing() {
               <Sparkles className="h-3.5 w-3.5 text-[var(--emerald)]" />
               Explainable AI · Clinically grounded
             </span>
-            <h1 className="mt-6 text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05]">
+            <h1 className="mt-6 text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.05]" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 700, letterSpacing: '-0.03em' }}>
               Know Your <span className="text-gradient">Health Risk</span>
               <br /> Before It Becomes a Crisis
             </h1>
@@ -133,26 +133,26 @@ function Landing() {
               <Button
                 size="lg"
                 asChild
-                className="h-12 px-7 text-base bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] hover:opacity-95 text-white border-0 shadow-lg shadow-[var(--electric)]/30"
+                className="h-12 px-7 text-base bg-gradient-to-r from-[#7c6af7] to-[#4f9cf9] hover:opacity-95 text-white border-0 shadow-lg shadow-[#7c6af7]/30"
               >
                 <a href="#diseases">
                   Start Free Assessment <ArrowRight className="ml-1" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" asChild className="h-12 px-7 text-base border-white/15 bg-white/5 hover:bg-white/10">
+              <Button size="lg" variant="outline" asChild className="h-12 px-7 text-base border-[rgba(255,255,255,0.12)] bg-transparent hover:bg-[rgba(255,255,255,0.05)]">
                 <a href="#how">How it works</a>
               </Button>
             </div>
-            <div className="mt-10 flex items-center justify-center gap-6 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[var(--emerald)]" /> Private & encrypted</span>
-              <span className="hidden sm:inline-flex items-center gap-1.5"><Stethoscope className="h-3.5 w-3.5 text-[var(--electric)]" /> Reviewed by clinicians</span>
+            <div className="mt-10 flex items-center justify-center gap-6 text-xs text-[#94a3b8]">
+              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-[#22c55e]" /> Private & encrypted</span>
+              <span className="hidden sm:inline-flex items-center gap-1.5"><Stethoscope className="h-3.5 w-3.5 text-[#7c6af7]" /> Reviewed by clinicians</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* DISEASES */}
-      <section id="diseases" className="relative mx-auto max-w-7xl px-4 sm:px-6 -mt-12 md:-mt-20">
+      <section id="diseases" className="relative mx-auto max-w-7xl px-4 sm:px-6 -mt-12 md:-mt-20" style={{ scrollMarginTop: "80px" }}>
         <div className="grid gap-5 md:grid-cols-3">
           {diseases.map((d, i) => {
             const Icon = d.icon;
@@ -166,13 +166,13 @@ function Landing() {
               >
                 <div
                   className="flex h-12 w-12 items-center justify-center rounded-xl mb-5"
-                  style={{ backgroundColor: `color-mix(in oklab, ${d.accent} 18%, transparent)`, color: d.accent, border: `1px solid color-mix(in oklab, ${d.accent} 35%, transparent)` }}
+                  style={{ backgroundColor: `${d.accent}15`, color: d.accent, border: `1px solid ${d.accent}30` }}
                 >
                   <Icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold">{d.name}</h3>
-                <p className="mt-2 text-sm text-muted-foreground min-h-[60px]">{d.desc}</p>
-                <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--electric)] group-hover:gap-2.5 transition-all">
+                <p className="mt-2 text-sm text-[#94a3b8] min-h-[60px]">{d.desc}</p>
+                <div className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[#7c6af7] group-hover:gap-2.5 transition-all">
                   Assess Risk <ArrowRight className="h-4 w-4" />
                 </div>
               </Link>
@@ -182,22 +182,22 @@ function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="mx-auto max-w-7xl px-4 sm:px-6 mt-28">
+      <section id="how" className="mx-auto max-w-7xl px-4 sm:px-6 mt-28" style={{ scrollMarginTop: "80px" }}>
         <div className="text-center">
           <h2 className="text-3xl sm:text-4xl font-bold">How it works</h2>
-          <p className="mt-3 text-muted-foreground">Four steps from data to action.</p>
+          <p className="mt-3 text-[#94a3b8]">Four steps from data to action.</p>
         </div>
         <div className="mt-12 grid gap-5 md:grid-cols-4">
           {steps.map((s, i) => {
             const Icon = s.icon;
             return (
               <div key={s.title} className="glass rounded-2xl p-6 relative animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-                <div className="absolute right-5 top-5 text-xs font-bold text-muted-foreground/40">0{i + 1}</div>
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--electric)]/20 to-[var(--emerald)]/20 border border-white/10 text-[var(--electric)]">
+                <div className="absolute right-5 top-5 text-xs font-bold text-[#475569]">0{i + 1}</div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-[#7c6af7]/20 to-[#4f9cf9]/20 border border-[rgba(255,255,255,0.1)] text-[#7c6af7]">
                   <Icon className="h-5 w-5" />
                 </div>
                 <h4 className="mt-4 font-semibold">{s.title}</h4>
-                <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
+                <p className="mt-1.5 text-sm text-[#94a3b8]">{s.desc}</p>
               </div>
             );
           })}
@@ -213,7 +213,7 @@ function Landing() {
             ) : (
               <div key={s.label} className="text-center">
                 <div className="text-3xl sm:text-4xl font-bold text-gradient">{s.value}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">{s.label}</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-[#94a3b8]">{s.label}</div>
               </div>
             )
           ))}
@@ -221,29 +221,29 @@ function Landing() {
       </section>
 
       {/* COMING SOON */}
-      <section id="soon" className="mx-auto max-w-7xl px-4 sm:px-6 mt-28">
+      <section id="soon" className="mx-auto max-w-7xl px-4 sm:px-6 mt-28" style={{ scrollMarginTop: "80px" }}>
         <div className="flex items-end justify-between flex-wrap gap-3">
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold">Coming soon</h2>
-            <p className="mt-2 text-muted-foreground">The next chapter of preventive AI care.</p>
+            <p className="mt-2 text-[#94a3b8]">The next chapter of preventive AI care.</p>
           </div>
-          <span className="text-xs uppercase tracking-[0.18em] text-[var(--emerald)]">In development</span>
+          <span className="text-xs uppercase tracking-[0.18em] text-[#22c55e] font-500">In development</span>
         </div>
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {soon.map((s) => {
             const Icon = s.icon;
             return (
               <div key={s.title} className="relative glass rounded-2xl p-6 overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-background/30" />
+                <div className="absolute inset-0 backdrop-blur-[2px] bg-[#0a0a0f]/30" />
                 <div className="relative">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-muted-foreground">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#94a3b8]">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground"><Lock className="h-3 w-3" /> Locked</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-[#94a3b8] font-500"><Lock className="h-3 w-3" /> Locked</span>
                   </div>
                   <h4 className="mt-4 font-semibold">{s.title}</h4>
-                  <p className="mt-1.5 text-sm text-muted-foreground/80">{s.desc}</p>
+                  <p className="mt-1.5 text-sm text-[#94a3b8]/80">{s.desc}</p>
                 </div>
               </div>
             );
@@ -253,10 +253,10 @@ function Landing() {
 
       {/* DISCLAIMER */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-24">
-        <div className="flex items-start gap-3 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning)]/5 p-5">
-          <AlertTriangle className="h-5 w-5 text-[var(--warning)] mt-0.5 shrink-0" />
-          <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">Medical Disclaimer:</strong> SVARAXA is an informational tool and does not provide medical diagnosis,
+        <div className="flex items-start gap-3 rounded-xl border border-[#f59e0b]/30 bg-[#f59e0b]/5 p-5">
+          <AlertTriangle className="h-5 w-5 text-[#f59e0b] mt-0.5 shrink-0" />
+          <p className="text-sm text-[#94a3b8]">
+            <strong className="text-[#f8f8ff]">Medical Disclaimer:</strong> SVARAXA is an informational tool and does not provide medical diagnosis,
             treatment, or replace professional medical advice. Always consult a licensed healthcare provider regarding any medical condition.
           </p>
         </div>
