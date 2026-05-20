@@ -11,16 +11,38 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+
+    head: () => ({
+      meta: [
+        {
+          title: "Svaraxa Health Insights",
+        },
+      ],
+      links: [
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "\public\svaraxa-logo.png.",
+        },
+      ],
+    }),
   });
 
   return router;
 };
 
-export const ClerkProviderWrapper = ({ children }: { children: React.ReactNode }) => {
-  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-  
+export const ClerkProviderWrapper = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const publishableKey =
+    import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
   if (!publishableKey) {
-    throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY environment variable");
+    throw new Error(
+      "Missing VITE_CLERK_PUBLISHABLE_KEY environment variable"
+    );
   }
 
   return (

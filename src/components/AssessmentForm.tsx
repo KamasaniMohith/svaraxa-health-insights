@@ -173,7 +173,7 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
   return (
     <div className="relative">
       {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <style>{`
             @keyframes pulse-ring {
               0% {
@@ -193,49 +193,49 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
               width: 60px;
               height: 60px;
               border-radius: 50%;
-              background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+              background: var(--accent-gradient);
             }
           `}</style>
-          <div className="glass-strong rounded-2xl p-12 max-w-sm mx-4 text-center">
+          <div className="glass-strong rounded-lg p-12 max-w-sm mx-4 text-center">
             <div className="flex justify-center mb-8">
               <div className="pulse-circle" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
+            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
               {loadingMessages[messageIndex]}
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
               This usually takes 2-3 seconds
             </p>
           </div>
         </div>
       )}
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-12 md:py-16">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+        <Link to="/" className="text-sm inline-flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
-        <div className="mt-6 flex items-baseline justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold">{config.name} Assessment</h1>
-          <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="mt-8 flex items-baseline justify-between">
+          <h1 className="text-2xl sm:text-3xl" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: '400', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>{config.name} Assessment</h1>
+          <span className="text-xs uppercase tracking-[0.18em] font-semibold" style={{ color: 'var(--text-muted)' }}>
             Step {step + 1} of {totalSteps}
           </span>
         </div>
 
-        <div className="mt-4 h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+        <div className="mt-4 h-1 w-full rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.07)' }}>
           <div
-            className="h-full bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] transition-all duration-500"
-            style={{ width: `${progress}%` }}
+            className="h-full transition-all duration-500"
+            style={{ width: `${progress}%`, background: 'var(--accent-gradient)' }}
           />
         </div>
 
-        <div key={step} className="mt-8 glass-strong rounded-2xl p-6 sm:p-8 animate-fade-up">
+        <div key={step} className="mt-8 glass-strong rounded-lg p-6 sm:p-8 animate-fade-up">
           {!isReview ? (
             <>
-              <h2 className="text-lg font-semibold">{current.title}</h2>
-              <p className="text-sm text-muted-foreground">
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{current.title}</h2>
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
                 Provide the details below. Helper text shows healthy ranges.
               </p>
-              <div className="mt-7 space-y-7">
+              <div className="mt-8 space-y-7">
                 {current.fields
                   .filter((f) => !f.showIf || f.showIf(values))
                   .map((f) => (
@@ -250,55 +250,58 @@ export function AssessmentForm({ config }: { config: AssessmentConfig }) {
             </>
           ) : (
             <>
-              <h2 className="text-lg font-semibold inline-flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-[var(--emerald)]" /> Review your data
+              <h2 className="text-lg font-semibold inline-flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                <Sparkles className="h-4 w-4" style={{ color: 'var(--accent)' }} /> Review your data
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
                 Confirm the values below, then run the analysis.
               </p>
               <dl className="mt-6 grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 {allFields.map((f) => (
-                  <div key={f.key} className="flex justify-between gap-3 border-b border-white/5 pb-2">
-                    <dt className="text-muted-foreground">{f.label}</dt>
-                    <dd className="font-medium text-right">{formatValue(values[f.key], f)}</dd>
+                  <div key={f.key} className="flex justify-between gap-3 border-b pb-2" style={{ borderColor: 'rgba(0,0,0,0.07)', color: 'var(--text-secondary)' }}>
+                    <dt>{f.label}</dt>
+                    <dd className="font-semibold" style={{ color: 'var(--text-primary)' }}>{formatValue(values[f.key], f)}</dd>
                   </div>
                 ))}
               </dl>
-              <div className="mt-6 flex items-start gap-2 text-xs text-muted-foreground rounded-lg border border-[var(--warning)]/25 bg-[var(--warning)]/5 p-3">
-                <AlertTriangle className="h-4 w-4 text-[var(--warning)] shrink-0 mt-0.5" />
-                Predictions are not medical diagnoses. Always consult a clinician.
+              <div className="mt-6 flex items-start gap-2 text-xs rounded-lg border p-3" style={{ borderColor: 'rgba(196,130,10,0.22)', backgroundColor: 'rgba(196,130,10,0.05)' }}>
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: 'var(--warning)' }} />
+                <p style={{ color: 'var(--text-secondary)' }}>Predictions are not medical diagnoses. Always consult a clinician.</p>
               </div>
             </>
           )}
         </div>
 
-        <div className="mt-6 flex justify-between gap-3">
+        <div className="mt-8 flex justify-between gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             disabled={step === 0}
             onClick={() => setStep((s) => Math.max(0, s - 1))}
-            className="border-white/10 bg-white/5"
+            className="font-semibold"
+            style={{ borderColor: 'rgba(0,0,0,0.12)', color: 'var(--text-secondary)' }}
           >
-            <ArrowLeft /> Back
+            <ArrowLeft className="h-4 w-4" /> Back
           </Button>
           {isReview ? (
             <div className="flex flex-col items-end gap-2">
               <Button
                 onClick={submit}
-                className="bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] hover:opacity-95 text-white border-0 shadow-lg shadow-[var(--electric)]/30"
+                className="text-white border-0 font-semibold"
+                style={{ background: 'var(--primary)' }}
               >
-                <Sparkles /> Analyze My Health Risk
+                <Sparkles className="h-4 w-4" /> Analyze My Health Risk
               </Button>
-              <p className="text-[11px] text-muted-foreground max-w-xs text-right">
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
                 Informational use only — not a diagnosis.
               </p>
             </div>
           ) : (
             <Button
               onClick={() => setStep((s) => s + 1)}
-              className="bg-gradient-to-r from-[var(--electric)] to-[var(--emerald)] hover:opacity-95 text-white border-0"
+              className="text-white border-0 font-semibold"
+              style={{ background: 'var(--accent)' }}
             >
-              Next <ArrowRight />
+              Next <ArrowRight className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -325,9 +328,9 @@ function FieldRenderer({
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <Label className="text-sm font-medium">{field.label}</Label>
+        <Label className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{field.label}</Label>
         {field.type === "slider" && (
-          <span className="text-sm tabular-nums font-semibold text-[var(--electric)]">
+          <span className="text-sm tabular-nums font-semibold" style={{ color: 'var(--accent)' }}>
             {value}{field.unit ? ` ${field.unit}` : ""}
           </span>
         )}
@@ -350,12 +353,13 @@ function FieldRenderer({
             step={field.step ?? "any"}
             value={value}
             onChange={(e) => onChange(parseFloat(e.target.value))}
-            className="bg-white/5 border-white/10"
+            className="input-field"
+            style={{ backgroundColor: 'var(--surface)', borderColor: 'rgba(0,0,0,0.12)', color: 'var(--text-primary)' }}
           />
         )}
         {field.type === "select" && (
           <Select value={String(value)} onValueChange={onChange}>
-            <SelectTrigger className="bg-white/5 border-white/10">
+            <SelectTrigger className="input-field" style={{ backgroundColor: 'var(--surface)', borderColor: 'rgba(0,0,0,0.12)', color: 'var(--text-primary)' }}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -366,7 +370,7 @@ function FieldRenderer({
           </Select>
         )}
         {field.type === "buttons" && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {field.options!.map((o) => {
               const active = String(value) === o.value;
               return (
@@ -374,11 +378,12 @@ function FieldRenderer({
                   key={o.value}
                   type="button"
                   onClick={() => onChange(o.value)}
-                  className={`h-10 rounded-lg border text-sm font-medium transition-all ${
-                    active
-                      ? "border-[var(--electric)] bg-[var(--electric)]/15 text-[var(--electric)] shadow-[0_0_18px_-4px_var(--electric)]"
-                      : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground"
-                  }`}
+                  className="h-10 rounded-lg border text-sm font-semibold transition-all"
+                  style={{
+                    borderColor: active ? 'var(--accent)' : 'rgba(0,0,0,0.12)',
+                    backgroundColor: active ? 'rgba(74,124,89,0.12)' : 'var(--surface)',
+                    color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                  }}
                 >
                   {o.label}
                 </button>
@@ -387,7 +392,7 @@ function FieldRenderer({
           </div>
         )}
         {field.type === "toggle" && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {[
               { v: true, l: "Yes" },
               { v: false, l: "No" },
@@ -398,11 +403,12 @@ function FieldRenderer({
                   key={o.l}
                   type="button"
                   onClick={() => onChange(o.v)}
-                  className={`h-10 rounded-lg border text-sm font-medium transition-all ${
-                    active
-                      ? "border-[var(--emerald)] bg-[var(--emerald)]/15 text-[var(--emerald)] shadow-[0_0_18px_-4px_var(--emerald)]"
-                      : "border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground"
-                  }`}
+                  className="h-10 rounded-lg border text-sm font-semibold transition-all"
+                  style={{
+                    borderColor: active ? 'var(--accent)' : 'rgba(0,0,0,0.12)',
+                    backgroundColor: active ? 'rgba(74,124,89,0.12)' : 'var(--surface)',
+                    color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                  }}
                 >
                   {o.l}
                 </button>
@@ -411,7 +417,7 @@ function FieldRenderer({
           </div>
         )}
       </div>
-      {field.helper && <p className="mt-2 text-xs text-muted-foreground">{field.helper}</p>}
+      {field.helper && <p className="mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>{field.helper}</p>}
     </div>
   );
 }

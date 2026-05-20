@@ -1,9 +1,26 @@
 import jsPDF from "jspdf";
 import { PredictionResult } from "./api";
 
+const loadImage = (src: string): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.src = src;
+  });
+};
+
 export async function generatePDF(result: PredictionResult, inputs: Record<string, any>) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
+  
+  const logoData = await loadImage('/svaraxa-logo.png');
   
   // ── Color helpers ──
   const riskColor = (level: string) => {
@@ -16,15 +33,17 @@ export async function generatePDF(result: PredictionResult, inputs: Record<strin
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, pageWidth, 35, "F");
 
+  doc.addImage(logoData, 'PNG', 12, 6, 20, 20);
+
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
-  doc.text("SVARAXA", 14, 16);
+  doc.text("SVARAXA", 36, 16);
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184);
-  doc.text("AI-Powered Early Health Risk Detection", 14, 24);
+  doc.text("AI-Powered Early Health Risk Detection", 36, 24);
   doc.text(`Generated: ${new Date().toLocaleDateString("en-IN", {
     day: "numeric", month: "long", year: "numeric"
   })}`, pageWidth - 14, 24, { align: "right" });

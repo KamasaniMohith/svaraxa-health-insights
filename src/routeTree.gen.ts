@@ -9,21 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResultsRouteImport } from './routes/results'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssessHeartDiseaseRouteImport } from './routes/assess.heart-disease'
 import { Route as AssessDiabetesRouteImport } from './routes/assess.diabetes'
 import { Route as AssessDiseaseRouteImport } from './routes/assess.$disease'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultsRoute = ResultsRouteImport.update({
   id: '/results',
   path: '/results',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,16 +67,22 @@ const AssessDiseaseRoute = AssessDiseaseRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/history': typeof HistoryRoute
+  '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
+  '/terms': typeof TermsRoute
   '/assess/$disease': typeof AssessDiseaseRoute
   '/assess/diabetes': typeof AssessDiabetesRoute
   '/assess/heart-disease': typeof AssessHeartDiseaseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/history': typeof HistoryRoute
+  '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
+  '/terms': typeof TermsRoute
   '/assess/$disease': typeof AssessDiseaseRoute
   '/assess/diabetes': typeof AssessDiabetesRoute
   '/assess/heart-disease': typeof AssessHeartDiseaseRoute
@@ -66,8 +90,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/history': typeof HistoryRoute
+  '/privacy': typeof PrivacyRoute
   '/results': typeof ResultsRoute
+  '/terms': typeof TermsRoute
   '/assess/$disease': typeof AssessDiseaseRoute
   '/assess/diabetes': typeof AssessDiabetesRoute
   '/assess/heart-disease': typeof AssessHeartDiseaseRoute
@@ -76,24 +103,33 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/history'
+    | '/privacy'
     | '/results'
+    | '/terms'
     | '/assess/$disease'
     | '/assess/diabetes'
     | '/assess/heart-disease'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/history'
+    | '/privacy'
     | '/results'
+    | '/terms'
     | '/assess/$disease'
     | '/assess/diabetes'
     | '/assess/heart-disease'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/history'
+    | '/privacy'
     | '/results'
+    | '/terms'
     | '/assess/$disease'
     | '/assess/diabetes'
     | '/assess/heart-disease'
@@ -101,8 +137,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   HistoryRoute: typeof HistoryRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResultsRoute: typeof ResultsRoute
+  TermsRoute: typeof TermsRoute
   AssessDiseaseRoute: typeof AssessDiseaseRoute
   AssessDiabetesRoute: typeof AssessDiabetesRoute
   AssessHeartDiseaseRoute: typeof AssessHeartDiseaseRoute
@@ -110,6 +149,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/results': {
       id: '/results'
       path: '/results'
@@ -117,11 +163,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -157,8 +217,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   HistoryRoute: HistoryRoute,
+  PrivacyRoute: PrivacyRoute,
   ResultsRoute: ResultsRoute,
+  TermsRoute: TermsRoute,
   AssessDiseaseRoute: AssessDiseaseRoute,
   AssessDiabetesRoute: AssessDiabetesRoute,
   AssessHeartDiseaseRoute: AssessHeartDiseaseRoute,
