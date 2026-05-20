@@ -4,29 +4,22 @@ import { ClerkProvider } from "@clerk/tanstack-start";
 import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient();
-
   const router = createRouter({
-    routeTree,
-    context: { queryClient },
-    scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
+  routeTree,
+  context: { queryClient },
+  scrollRestoration: true,
+  defaultPreloadStaleTime: 0,
 
-    head: () => ({
-      meta: [
-        {
-          title: "Svaraxa Health Insights",
-        },
-      ],
-      links: [
-        {
-          rel: "icon",
-          type: "image/png",
-          href: "\public\svaraxa-logo.png.",
-        },
-      ],
-    }),
-  });
+  head: () => ({
+    links: [
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/svaraxa-logo.png",
+      },
+    ],
+  }),
+});
 
   return router;
 };
